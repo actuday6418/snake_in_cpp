@@ -1,7 +1,6 @@
 #include"Base.h"
 #include<iostream>
 #include<stdlib.h>
-#include<time.h>
 #include<SFML/Graphics.hpp>
 
 class snake {
@@ -11,21 +10,26 @@ class snake {
 	direction cache;
 	//Add a segment to the snake
 	void append(segment *x){
-		if(cache == UP){
+		switch(tail->_cache){
+			case UP: 
 			x->posx = tail->posx;
 			x->posy = tail->posy + 1;
-		}
-		else if(cache == DOWN){
+			break;
+		
+			case DOWN:
 			x->posx = tail->posx;
 			x->posy = tail->posy - 1;
-		}
-		else if(cache == RIGHT){
+			break;
+
+			case RIGHT:
 			x->posx = tail->posx - 1;
 			x->posy = tail->posy;
-		}
-		else if(cache == LEFT){
+			break;
+
+			case LEFT:
 			x->posx = tail->posx + 1;
 			x->posy = tail->posy;
+			break;
 		}
 		tail->next = x;
 		tail = x;
