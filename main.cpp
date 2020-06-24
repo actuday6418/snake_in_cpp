@@ -35,7 +35,8 @@ class snake {
 		head->_cache = cache;
 		segment* x = head;
 		do{
-		if(x->_cache == LEFT && x->posx>0){
+		if(x->_cache == LEFT){
+		if(x->posx>0){
 				map[x->posx + x->posy*100]._color = WHITE;
 				--x->posx;
 				if(x->isHead){
@@ -45,7 +46,19 @@ class snake {
 					map[x->posx + x->posy*100]._color = BLACK;
 				}
 		}
-		else if(x->_cache == RIGHT && x->posx<95){
+		else{
+				map[x->posx + x->posy*100]._color = WHITE;
+				x->posx = 94;
+				if(x->isHead){
+					map[x->posx + x->posy*100]._color = RED;
+				}
+				else{
+					map[x->posx + x->posy*100]._color = BLACK;
+				}
+		}
+		}
+		else if(x->_cache == RIGHT){
+		if(x->posx<95){
 				map[x->posx + x->posy*100]._color = WHITE;
 				++x->posx;
 				if(x->isHead){
@@ -55,7 +68,20 @@ class snake {
 					map[x->posx + x->posy*100]._color = BLACK;
 				}
 		}
-		else if(x->_cache == UP && x->posy>0){
+	else{
+				map[x->posx + x->posy*100]._color = WHITE;
+				x->posx = 1;
+				if(x->isHead){
+					map[x->posx + x->posy*100]._color = RED;
+				}
+				else{
+					map[x->posx + x->posy*100]._color = BLACK;
+				}
+		}
+		}
+
+		else if(x->_cache == UP){
+		if(x->posy>0){
 				map[x->posx + x->posy*100]._color = WHITE;
 				--x->posy;
 				if(x->isHead){
@@ -65,7 +91,20 @@ class snake {
 					map[x->posx + x->posy*100]._color = BLACK;
 				}
 		}
-		else if(x->_cache == DOWN && x->posy<95){
+	else{
+				map[x->posx + x->posy*100]._color = WHITE;
+				x->posy = 94;
+				if(x->isHead){
+					map[x->posx + x->posy*100]._color = RED;
+				}
+				else{
+					map[x->posx + x->posy*100]._color = BLACK;
+				}
+		}
+		}
+
+		else if(x->_cache == DOWN){
+		if(x->posy<95){
 				map[x->posx + x->posy*100]._color = WHITE;
 				++x->posy;
 				if(x->isHead){
@@ -75,6 +114,18 @@ class snake {
 					map[x->posx + x->posy*100]._color = BLACK;
 				}
 		}
+		else{
+				map[x->posx + x->posy*100]._color = WHITE;
+				x->posy = 1;
+				if(x->isHead){
+					map[x->posx + x->posy*100]._color = RED;
+				}
+				else{
+					map[x->posx + x->posy*100]._color = BLACK;
+				}
+		}
+		}
+
 	//	For debugging
 	//	std::cout<<"("<<x->posx<<","<<x->posy<<")";
 		if(x->next == NULL){
