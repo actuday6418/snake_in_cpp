@@ -1,8 +1,12 @@
 #include"Base.h"
 #include<iostream>
 #include<stdlib.h>
+#include<thread>
+#include<chrono>
 #include<SFML/Graphics.hpp>
 
+const int HEIGHT = 50;
+const int WIDTH = 50;
 class snake {
 	public:
 	segment* head;
@@ -31,101 +35,102 @@ class snake {
 			x->posy = tail->posy;
 			break;
 		}
+		x->previous = tail;
 		tail->next = x;
 		tail = x;
 	}
 	//Get the array of points for the current frame
-	void getMap(point map[10000]){
+	void getMap(point map[WIDTH*HEIGHT]){
 		head->_cache = cache;
 		segment* x = head;
 		do{
 		if(x->_cache == LEFT){
 		if(x->posx>0){
-				map[x->posx + x->posy*100]._color = WHITE;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				--x->posx;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		else{
-				map[x->posx + x->posy*100]._color = WHITE;
-				x->posx = 94;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
+				x->posx = WIDTH - 1;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		}
 		else if(x->_cache == RIGHT){
-		if(x->posx<95){
-				map[x->posx + x->posy*100]._color = WHITE;
+		if(x->posx<WIDTH){
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				++x->posx;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 	else{
-				map[x->posx + x->posy*100]._color = WHITE;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				x->posx = 1;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		}
 
 		else if(x->_cache == UP){
 		if(x->posy>0){
-				map[x->posx + x->posy*100]._color = WHITE;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				--x->posy;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 	else{
-				map[x->posx + x->posy*100]._color = WHITE;
-				x->posy = 94;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
+				x->posy = HEIGHT - 1;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		}
 
 		else if(x->_cache == DOWN){
-		if(x->posy<95){
-				map[x->posx + x->posy*100]._color = WHITE;
+		if(x->posy<HEIGHT){
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				++x->posy;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		else{
-				map[x->posx + x->posy*100]._color = WHITE;
+				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				x->posy = 1;
 				if(x->isHead){
-					map[x->posx + x->posy*100]._color = RED;
+					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
-					map[x->posx + x->posy*100]._color = BLACK;
+					map[x->posx + x->posy*WIDTH]._color = BLACK;
 				}
 		}
 		}
@@ -139,15 +144,14 @@ class snake {
 		}
 		while(true);
 
-		x = head;
+		x = tail;
 
-		while(x->next != NULL){
-			x->next->_cache = x->_cache;
-			x = x->next;
+		while(x->previous != NULL){
+			x->_cache = x->previous->_cache;
+			x = x->previous;
 		}
-
-
 	}
+
 	~snake(){
 		segment *x = head->next,*y = head->next;
 		while(x != NULL){
@@ -156,17 +160,19 @@ class snake {
 			x = y;
 		}
 	}
+
 	snake(segment* hd){
 		head = hd;
 		tail = hd;
 		cache = UP;
+		tail->_cache = head->_cache = cache;
 	}
 };
 
 //Build Vertex array for each point in the map
 void maketheQuads(sf::Vertex vertices[4], const point &map, const int &i){
-	int posx = i%100;
-	int posy = i/100;
+	int posx = i%WIDTH;
+	int posy = i/HEIGHT;
 	vertices[0].position = sf::Vector2f(0 + posx*16,0 + posy*16);
 	vertices[1].position = sf::Vector2f(16 + posx*16,0 + posy*16);
 	vertices[2].position = sf::Vector2f(16 + posx*16,16 + posy*16);
@@ -188,10 +194,10 @@ void maketheQuads(sf::Vertex vertices[4], const point &map, const int &i){
 	}
 }
 
-void initQuads(sf::Vertex vertices[10000][4]){
-	for(int i=0;i<10000;i++){
-		int posx = i%100;
-		int posy = i/100;
+void initQuads(sf::Vertex vertices[WIDTH*HEIGHT][4]){
+	for(int i=0;i<WIDTH*HEIGHT;i++){
+		int posx = i%WIDTH;
+		int posy = i/HEIGHT;
 		vertices[i][0].position = sf::Vector2f(0 + posx*16,0 + posy*16);
 		vertices[i][1].position = sf::Vector2f(16 + posx*16,0 + posy*16);
 		vertices[i][2].position = sf::Vector2f(16 + posx*16,16 + posy*16);
@@ -207,9 +213,9 @@ int main(){
 	srand(time(NULL));
 
  	point map[10000];
-	segment head(25,25,true,NULL,UP);
+	segment head(25,25,true,NULL,NULL,UP);
 	snake _snake(&head);
-	sf::Vertex vertices[10000][4]; 
+	sf::Vertex vertices[WIDTH*HEIGHT][4]; 
 	initQuads(vertices);
  
 	//Game window
@@ -218,36 +224,41 @@ int main(){
 	//Game loop
 	while(window.isOpen()){
 		sf::Event event;
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 		//Keyboard events
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && _snake.cache != RIGHT){
 			_snake.cache = LEFT;
 		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && _snake.cache != LEFT){
 			_snake.cache = RIGHT;
 		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && _snake.cache != DOWN){
 			_snake.cache = UP;
 		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && _snake.cache != UP){
 			_snake.cache = DOWN;
 		}
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
 			_snake.cache = NONE;
 		}
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::N)){
-			segment* x = new segment(25,25,false,NULL,UP);
+			segment* x = new segment(25,25,false,NULL,NULL,UP);
 			_snake.append(x);
 			while(true){
 				if(sf::Keyboard::isKeyPressed(sf::Keyboard::M)){
 					break;
+				}
+			while(window.pollEvent(event)){
+				if(event.type == sf::Event::Closed)
+					window.close();
 				}
 			}
 		}
 	
 		//map building and rendering
 		_snake.getMap(map);
-		for(int i=0;i<10000;i++){
+		for(int i=0;i<HEIGHT*WIDTH;i++){
 			maketheQuads(vertices[i], map[i],i);
 		        window.draw(vertices[i],4,sf::Quads);
 		}

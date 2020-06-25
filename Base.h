@@ -20,10 +20,12 @@ class segment{
 	int posx, posy;
 	direction _cache;
 	segment* next;
-	segment(int a, int b, bool head,segment* pointer,direction cache)
+	segment* previous;
+	segment(int a, int b, bool head,segment* previous,segment* next,direction cache)
 	{
 		posx = a;
-		next = pointer;
+		previous = previous;
+		next = next;
 		_cache = cache;
 		posy = b;
 		isHead = head;
