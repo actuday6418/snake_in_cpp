@@ -40,8 +40,9 @@ class snake {
 		tail = x;
 	}
 	//Get the array of points for the current frame
-	void getMap(point map[WIDTH*HEIGHT]){
+	bool getMap(point map[WIDTH*HEIGHT]){
 		head->_cache = cache;
+		bool changed_food = false;
 		segment* x = head;
 		do{
 		if(x->_cache == LEFT){
@@ -49,6 +50,11 @@ class snake {
 				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				--x->posx;
 				if(x->isHead){
+					if(map[x->posx + x->posy*WIDTH]._color == BLUE){
+						segment *x = new segment(0,0,false,NULL,NULL,UP);
+						append(x);
+						changed_food = true;
+					}
 					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
@@ -59,6 +65,12 @@ class snake {
 				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				x->posx = WIDTH - 1;
 				if(x->isHead){
+						if(map[x->posx + x->posy*WIDTH]._color == BLUE){
+						segment *x = new segment(0,0,false,NULL,NULL,UP);
+						append(x);
+						changed_food = true;
+					}
+
 					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
@@ -71,6 +83,12 @@ class snake {
 				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				++x->posx;
 				if(x->isHead){
+						if(map[x->posx + x->posy*WIDTH]._color == BLUE){
+						segment *x = new segment(0,0,false,NULL,NULL,UP);
+						append(x);
+						changed_food = true;
+					}
+
 					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
@@ -94,6 +112,12 @@ class snake {
 				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				--x->posy;
 				if(x->isHead){
+						if(map[x->posx + x->posy*WIDTH]._color == BLUE){
+						segment *x = new segment(0,0,false,NULL,NULL,UP);
+						append(x);
+						changed_food = true;
+					}
+
 					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
@@ -117,6 +141,12 @@ class snake {
 				map[x->posx + x->posy*WIDTH]._color = WHITE;
 				++x->posy;
 				if(x->isHead){
+						if(map[x->posx + x->posy*WIDTH]._color == BLUE){
+						segment *x = new segment(0,0,false,NULL,NULL,UP);
+						append(x);
+						changed_food = true;
+					}
+
 					map[x->posx + x->posy*WIDTH]._color = RED;
 				}
 				else{
@@ -150,6 +180,7 @@ class snake {
 			x->_cache = x->previous->_cache;
 			x = x->previous;
 		}
+		return changed_food;
 	}
 
 	~snake(){
@@ -178,11 +209,11 @@ void maketheQuads(sf::Vertex vertices[4], const point &map, const int &i){
 	vertices[2].position = sf::Vector2f(16 + posx*16,16 + posy*16);
 	vertices[3].position = sf::Vector2f(0 + posx*16,16 + posy*16);
 	if(map._color == WHITE){
-	for(int i=0;i<4;i++){
+		for(int i=0;i<4;i++){
 		vertices[i].color = sf::Color::White;
 		}
 	}
-	if(map._color == BLACK){
+	else if(map._color == BLACK){
 		for(int i=0;i<4;i++){
 			vertices[i].color = sf::Color::Black;
 		}
@@ -190,6 +221,11 @@ void maketheQuads(sf::Vertex vertices[4], const point &map, const int &i){
 	else if(map._color == RED){
 		for(int i=0;i<4;i++){
 			vertices[i].color = sf::Color::Red;
+		}
+	}
+	else if(map._color == BLUE){
+		for(int i=0;i<4;i++){
+			vertices[i].color = sf::Color::Blue;
 		}
 	}
 }
@@ -217,7 +253,8 @@ int main(){
 	snake _snake(&head);
 	sf::Vertex vertices[WIDTH*HEIGHT][4]; 
 	initQuads(vertices);
- 
+        bool food_flag = false; //For determining the presence of food in the map
+
 	//Game window
 	sf::RenderWindow window(sf::VideoMode(800,800),"Game");
 
@@ -225,7 +262,14 @@ int main(){
 	while(window.isOpen()){
 		sf::Event event;
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-
+		while(!food_flag){
+			int random_height = rand()%(HEIGHT-1) + 1;
+			int random_width = rand()%(WIDTH-1)+1;
+			if(map[random_height*WIDTH + HEIGHT]._color == WHITE){
+				map[random_height*WIDTH + HEIGHT]._color = BLUE;
+				food_flag = true;
+			}
+		}
 		//Keyboard events
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && _snake.cache != RIGHT){
 			_snake.cache = LEFT;
@@ -242,22 +286,10 @@ int main(){
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
 			_snake.cache = NONE;
 		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::N)){
-			segment* x = new segment(25,25,false,NULL,NULL,UP);
-			_snake.append(x);
-			while(true){
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::M)){
-					break;
-				}
-			while(window.pollEvent(event)){
-				if(event.type == sf::Event::Closed)
-					window.close();
-				}
-			}
-		}
 	
 		//map building and rendering
-		_snake.getMap(map);
+		if(_snake.getMap(map))
+			food_flag = false;
 		for(int i=0;i<HEIGHT*WIDTH;i++){
 			maketheQuads(vertices[i], map[i],i);
 		        window.draw(vertices[i],4,sf::Quads);
